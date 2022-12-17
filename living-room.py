@@ -2,7 +2,6 @@ import os
 import json
 import csv
 import datetime as dt
-import timedelta as td
 
 csvDataPath = "csv"
 resultPath = "result"
@@ -128,5 +127,41 @@ for extractedData in filteredExtractedData:
         writer.writerow(extractedData.keys())
         indexLine = False
     writer.writerow(extractedData.values())
+
+csvFile.close()
+
+# Create final results
+csvFile = open(resultPath + "/living-room-results.csv", "w")
+writer = csv.writer(csvFile)
+
+light = 0
+motion = 0
+lightAndMotion = 0
+lightAndNotMotion = 0
+notLightAndMotion = 0
+for extractedData in filteredExtractedData:
+    lightVal = extractedData["Light"]
+    motionVal = extractedData["Motion"]
+    if lightVal:
+        light += 1
+        if not motionVal:
+            lightAndNotMotion += 1
+    if motionVal:
+        motion += 1
+        if not lightVal:
+            notLightAndMotion += 1
+    if lightVal and motionVal:
+        lightAndMotion += 1
+
+results = {
+    'Light Periods': light,
+    'Motion Periods': motion,
+    'Light with Motion Periods': lightAndMotion,
+    'Light without Motion Periods': lightAndNotMotion,
+    'Motion without Light Periods': notLightAndMotion
+}
+
+writer.writerow(results.keys())
+writer.writerow(results.values())
 
 csvFile.close()
