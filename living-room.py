@@ -24,7 +24,7 @@ for fileName in fileList:
 
     if "sensor" in fileName:
         timeIndex = 0
-        illuminanceIndex = -1
+        illuminanceIndex = 0
         indexLine = True
         for line in currentCsvFile:
             # Find index positions
@@ -112,7 +112,7 @@ for extractedData in extractedDataList:
                     motion = True
                     break
 
-            extractedData["Light"] = extractedData["Illuminance"] > 10
+            extractedData["Light"] = extractedData["Illuminance"] > 8
             extractedData["Motion"] = motion
             filteredExtractedData.append(extractedData)
 
