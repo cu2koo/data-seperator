@@ -5,92 +5,93 @@ import csv
 filter = input("enter your filter (case sensitive): ")
 print("your filter is", filter)
 
-rawDataFolderName = "rawdata"
-resDataFolderName = "filtered"
-csvDataFolderName = "csv"
+rawDataPath = "data"
+resDataPath = "filtered"
+csvDataPath = "csv"
 
-for fileName in os.listdir(rawDataFolderName):
-    if "log000" not in fileName:
-        continue
 
-    file = open(rawDataFolderName + "/" + fileName, "r", encoding="utf-8")
+def createPath(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print(path, "is been created.")
+
+
+def readFileLines(path, fileName):
+    file = open(path + "/" + fileName, "r", encoding="utf-8")
     lines = file.readlines()
     file.close()
 
-    filteredLines = []
-    for line in lines:
+    return lines
+
+
+def writeFileLines(path, fileName, fileLines):
+    file = open(path + "/" + fileName, "w", encoding="utf-8")
+    file.writelines(fileLines)
+    file.close()
+    print(path + "/" + fileName, "is been created with", len(fileLines), "lines.")
+
+
+def filterFileLines(filter, fileLines):
+    filteredFileLines = []
+    for line in fileLines:
         if filter in line:
-            filteredLines.append(line)
+            filteredFileLines.append(line)
 
-    if not os.path.exists(resDataFolderName):
-        os.makedirs(resDataFolderName)
-        print(resDataFolderName, "is been created.")
+    return filteredFileLines
 
-    newFile = open(resDataFolderName + "/" + fileName, "w", encoding="utf-8")
-    newFile.writelines(filteredLines)
-    newFile.close()
-    print("----------------------------------------------------------------\n",
-          len(filteredLines), "lines found in",
-          rawDataFolderName + "/" + fileName + ".\n",
-          "result has been saved in", resDataFolderName + "/" + fileName + ".")
 
+def writeCsvFileLines(path, fileName, fileLines, topic=None):
+    csvs = {}
+    files = []
+    for line in fileLines:
+        data = json.loads(line)
+        if topic is not None:
+            data = data[topic]
+        key = listToString(list(data.keys()))
+        if key not in csvs.keys():
+            number = len(csvs) + 1
+            csvFile = open(path + "/" + fileName + "-" +
+                           str(number) + ".csv", "w")
+            print(path + "/" + fileName + "-" + str(number) + ".csv",
+                  "is been created.")
+            files.append(csvFile)
+            csvs[key] = csv.writer(csvFile)
+            csvs[key].writerow(data.keys())
+        csvs[key].writerow(data.values())
+
+    for file in files:
+        file.close()
+
+
+def listToString(list):
+    result = ""
+    for item in list:
+        result += item
+
+    return result
+
+
+for fileName in os.listdir(rawDataPath):
+    if "log000" not in fileName:
+        continue
+
+    # Filter data from the rawDataPath via filter
+    lines = readFileLines(rawDataPath, fileName)
+    filteredLines = filterFileLines(filter, lines)
+    createPath(resDataPath)
+    writeFileLines(resDataPath, fileName, filteredLines)
     if len(filteredLines) == 0:
         continue
 
-    if not os.path.exists(csvDataFolderName):
-        os.makedirs(csvDataFolderName)
-        print(csvDataFolderName, "is been created.")
+    # Create csv files from resDataPath
+    createPath(csvDataPath)
+    writeCsvFileLines(csvDataPath, fileName, filteredLines)
 
-    csvFile = open(csvDataFolderName + "/" + fileName + ".csv", "w")
-    csvWriter = csv.writer(csvFile)
-
-    first = True
-    for line in filteredLines:
-        data = json.loads(line)
-        if first:
-            csvWriter.writerow(data.keys())
-            first = False
-            print(csvDataFolderName + "/" + fileName + ".csv", "created.")
-        csvWriter.writerow(data.values())
-
-    csvFile.close()
-
-    csvSensorFile = open(csvDataFolderName + "/" +
-                         fileName + "_sensor.csv", "w")
-    csvSensorWriter = csv.writer(csvSensorFile)
-    csvStateFile = open(csvDataFolderName + "/" + fileName + "_state.csv", "w")
-    csvStateWriter = csv.writer(csvStateFile)
-    csvResultFile = open(csvDataFolderName + "/" +
-                         fileName + "_result.csv", "w")
-    csvResultWriter = csv.writer(csvResultFile)
-
-    firstSensor = True
-    firstState = True
-    firstResult = True
-    for line in filteredLines:
-        data = json.loads(line)
-        if "SENSOR" in data["topic"]:
-            if firstSensor:
-                csvSensorWriter.writerow(data["message"].keys())
-                firstSensor = False
-                print(csvDataFolderName + "/" +
-                      fileName + "_sensor.csv", "created.")
-            csvSensorWriter.writerow(data["message"].values())
-        if "STATE" in data["topic"]:
-            if firstState:
-                csvStateWriter.writerow(data["message"].keys())
-                firstState = False
-                print(csvDataFolderName + "/" +
-                      fileName + "_state.csv", "created.")
-            csvStateWriter.writerow(data["message"].values())
-        if "RESULT" in data["topic"]:
-            if firstResult:
-                csvResultWriter.writerow(data["message"].keys())
-                firstResult = False
-                print(csvDataFolderName + "/" +
-                      fileName + "_result.csv", "created.")
-            csvResultWriter.writerow(data["message"].values())
-
-    csvSensorFile.close()
-    csvStateFile.close()
-    csvResultFile.close()
+    # Create specific csv files form resDataPath
+    sensorLines = filterFileLines("SENSOR", filteredLines)
+    writeCsvFileLines(csvDataPath, fileName +
+                      "_sensor", sensorLines, "message")
+    # Optional
+    # stateLines = filterFileLines("STATE", filteredLines)
+    # writeCsvFileLines(csvDataPath, fileName +
+    #                   "_state", stateLines, "message")
