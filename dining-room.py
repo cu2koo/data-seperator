@@ -73,13 +73,13 @@ for fileName in fileList:
                 continue
 
             # Fill dictionary
-            if "POWER2" in line[topicIndex]:
+            if "POWER1" in line[topicIndex]:
                 try:
                     time = line[timeIndex]
                     power = line[messageIndex]
                     extractedData = {
                         'Time': time,
-                        'Power2': power
+                        'Power1': power
                     }
                     extractedPowerList.append(extractedData)
                 except:
@@ -97,14 +97,14 @@ for extractedData in extractedPowerList:
                            int(time[3]), int(time[4]), int(time[5]))
     extractedData["Time"] = dateTime
     # Test Period
-    if dateTime > dt.datetime(2022, 11, 16, 9, 5) and dateTime < dt.datetime(2022, 11, 30, 12, 16):
+    if dateTime > dt.datetime(2022, 12, 1, 11, 15) and dateTime < dt.datetime(2022, 12, 8, 11, 20):
         if dateTime.time() < dt.time(7, 30) or dateTime.time() > dt.time(16, 30):
             filteredExtractedPower.append(extractedData)
 
 for extractedData in extractedDataList:
     dateTime = dt.datetime.strptime(extractedData["Time"], '%Y-%m-%dT%H:%M:%S')
     # Test Period
-    if dateTime > dt.datetime(2022, 11, 16, 9, 5) and dateTime < dt.datetime(2022, 11, 30, 12, 16):
+    if dateTime > dt.datetime(2022, 12, 1, 11, 15) and dateTime < dt.datetime(2022, 12, 8, 11, 20):
         if dateTime.time() < dt.time(7, 30) or dateTime.time() > dt.time(16, 30):
             motion = False
             for power in extractedPowerList:
@@ -118,7 +118,7 @@ for extractedData in extractedDataList:
 
 # Save data
 createPath(resultPath)
-csvFile = open(resultPath + "/living-room.csv", "w")
+csvFile = open(resultPath + "/dining-room.csv", "w")
 writer = csv.writer(csvFile)
 
 indexLine = True
@@ -133,7 +133,7 @@ csvFile.close()
 # Create final results
 
 # Result
-csvFile = open(resultPath + "/living-room-results.csv", "w")
+csvFile = open(resultPath + "/dining-room-results.csv", "w")
 writer = csv.writer(csvFile)
 
 light = 0
@@ -170,7 +170,7 @@ writer.writerow(results.values())
 csvFile.close()
 
 # Result per day
-csvFile = open(resultPath + "/living-room-results-per-day.csv", "w")
+csvFile = open(resultPath + "/dining-room-results-per-day.csv", "w")
 writer = csv.writer(csvFile)
 
 lastDateTime = dt.datetime.now() - dt.timedelta(365)
