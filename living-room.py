@@ -131,6 +131,8 @@ for extractedData in filteredExtractedData:
 csvFile.close()
 
 # Create final results
+
+# Result
 csvFile = open(resultPath + "/living-room-results.csv", "w")
 writer = csv.writer(csvFile)
 
@@ -154,14 +156,86 @@ for extractedData in filteredExtractedData:
         lightAndMotion += 1
 
 results = {
-    'Light Periods': light,
-    'Motion Periods': motion,
-    'Light with Motion Periods': lightAndMotion,
-    'Light without Motion Periods': lightAndNotMotion,
-    'Motion without Light Periods': notLightAndMotion
+    'Licht-Perioden': light,
+    'Anwesenheits-Perioden': motion,
+    'Ausgewertete Perioden': len(filteredExtractedData),
+    'Licht mit Anwesenheit der Nutzer': lightAndMotion,
+    'Licht ohne Anwesenheit der Nutzer': lightAndNotMotion,
+    'Kein Licht mit Anwesenheit der Nutzer': notLightAndMotion
 }
 
 writer.writerow(results.keys())
 writer.writerow(results.values())
+
+csvFile.close()
+
+# Result per day
+csvFile = open(resultPath + "/living-room-results-per-day.csv", "w")
+writer = csv.writer(csvFile)
+
+lastDateTime = dt.datetime.now() - dt.timedelta(365)
+resultPerDay = []
+
+elementCounter = 0
+light = 0
+motion = 0
+lightAndMotion = 0
+lightAndNotMotion = 0
+notLightAndMotion = 0
+
+for extractedData in filteredExtractedData:
+    currentDateTime = dt.datetime.strptime(
+        extractedData["Time"], '%Y-%m-%dT%H:%M:%S')
+    if currentDateTime.date() != lastDateTime.date():
+        if elementCounter != 0:
+            result = {
+                'Datum': lastDateTime.strftime('%Y-%m-%d'),
+                'Licht-Perioden': light,
+                'Anwesenheits-Perioden': motion,
+                'Ausgewertete Perioden': elementCounter,
+                'Licht mit Anwesenheit der Nutzer': lightAndMotion,
+                'Licht ohne Anwesenheit der Nutzer': lightAndNotMotion,
+                'Kein Licht mit Anwesenheit der Nutzer': notLightAndMotion
+            }
+            resultPerDay.append(result)
+        lastDateTime = currentDateTime
+        elementCounter = 0
+        light = 0
+        motion = 0
+        lightAndMotion = 0
+        lightAndNotMotion = 0
+        notLightAndMotion = 0
+    lightVal = extractedData["Light"]
+    motionVal = extractedData["Motion"]
+    if lightVal:
+        light += 1
+        if not motionVal:
+            lightAndNotMotion += 1
+    if motionVal:
+        motion += 1
+        if not lightVal:
+            notLightAndMotion += 1
+    if lightVal and motionVal:
+        lightAndMotion += 1
+    elementCounter += 1
+
+if elementCounter != 0:
+    result = {
+        'Datum': lastDateTime.strftime('%Y-%m-%d'),
+        'Licht-Perioden': light,
+        'Anwesenheits-Perioden': motion,
+        'Ausgewertete Perioden': elementCounter,
+        'Licht mit Anwesenheit der Nutzer': lightAndMotion,
+        'Licht ohne Anwesenheit der Nutzer': lightAndNotMotion,
+        'Kein Licht mit Anwesenheit der Nutzer': notLightAndMotion
+    }
+    resultPerDay.append(result)
+
+if len(resultPerDay) > 0:
+    writer.writerow(resultPerDay[0].keys())
+    for result in resultPerDay:
+        writer.writerow(result.values())
+
+print(len(filteredExtractedData))
 
 csvFile.close()
