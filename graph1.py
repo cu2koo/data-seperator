@@ -24,7 +24,6 @@ def parser(date):
 
 df = pd.read_csv("result/bath.csv", sep=",", decimal=".",
                  date_parser=parser, parse_dates=["Date"])
-print(df)
 
 # Humidity
 fig, ax = plt.subplots()
@@ -82,6 +81,52 @@ for dfSub in dfSubs:
     ax[x, y].xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ax[x, y].legend()
     ax[x, y].grid(True)
+    count += 1
+
+df = pd.read_csv("result/bath-extra.csv", sep=",", decimal=".",
+                 date_parser=parser, parse_dates=["Date"])
+
+# Humidity
+dfSubs = [
+    df[(df["Date"] > '2022-12-16 10:0:0') &
+       (df["Date"] < '2022-12-16 11:0:0')],
+    df[(df["Date"] > '2022-12-18 8:35:0') &
+       (df["Date"] < '2022-12-18 9:35:0')]
+]
+
+fig, ax = plt.subplots(2, 1, figsize=(20, 30), sharey=True)
+count = 0
+for dfSub in dfSubs:
+    x = count % 2
+    ax[x].plot(dfSub["Date"], dfSub["Humidity"])
+    date = pd.to_datetime(dfSub["Date"].values[0]).strftime("%d.%m.")
+    ax[x].set_title(
+        "Luftfeuchtigkeit im Bad (beim Duschen am " + date + ")", pad=15.0)
+    ax[x].set_xlabel("Zeitpunkt", loc="center", labelpad=7.5)
+    ax[x].set_ylabel("Luftfeuchtigkeit in %", loc="center", labelpad=7.5)
+    ax[x].xaxis_date()
+    ax[x].xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    ax[x].legend()
+    ax[x].grid(True)
+    ax[x].axhline(70, c="r", ls="dotted")
+    count += 1
+
+fig, ax = plt.subplots(2, 1, figsize=(20, 30), sharey=True)
+count = 0
+for dfSub in dfSubs:
+    x = count % 2
+    ax[x].plot(dfSub["Date"], dfSub["Temperature"],
+               label="Temperatur in °C")
+    ax[x].plot(dfSub["Date"], dfSub["Dew Point"], label="Taupunkt in °C")
+
+    date = pd.to_datetime(dfSub["Date"].values[0]).strftime("%d.%m.")
+    ax[x].set_title(
+        "Temperatur und Taupunkt im Bad (beim Duschen am " + date + ")", pad=15.0)
+    ax[x].set_xlabel("Zeitpunkt", loc="center", labelpad=7.5)
+    ax[x].xaxis_date()
+    ax[x].xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    ax[x].legend()
+    ax[x].grid(True)
     count += 1
 
 plt.show()

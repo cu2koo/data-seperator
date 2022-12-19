@@ -103,3 +103,17 @@ csvFile = open(resultPath + "/" + resultFileName +
 writer = csv.writer(csvFile)
 saveResult(writer, filteredExtractedData)
 csvFile.close()
+
+# Extra measurements
+periodBegin = dt.datetime(2022, 12, 16, 0, 0)
+periodEnd = dt.datetime(2022, 12, 19, 0, 0)
+
+# Filter
+filteredExtractedData = filterAm2301Data(
+    extractedDataList, periodBegin, periodEnd)
+
+csvFile = open(resultPath + "/" + resultFileName +
+               "-extra.csv", "w", encoding="utf-8", newline='')
+writer = csv.writer(csvFile)
+saveResult(writer, filteredExtractedData)
+csvFile.close()
