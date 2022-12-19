@@ -25,7 +25,7 @@ def readFileLines(path, fileName):
 
 
 def writeFileLines(path, fileName, fileLines):
-    file = open(path + "/" + fileName, "w", encoding="utf-8")
+    file = open(path + "/" + fileName, "w", encoding="utf-8", newline='')
     file.writelines(fileLines)
     file.close()
     print(path + "/" + fileName, "is been created with", len(fileLines), "lines.")
@@ -51,7 +51,7 @@ def writeCsvFileLines(path, fileName, fileLines, topic=None):
         if key not in csvs.keys():
             number = len(csvs) + 1
             csvFile = open(path + "/" + fileName + "-" +
-                           str(number) + ".csv", "w")
+                           str(number) + ".csv", "w", newline='')
             print(path + "/" + fileName + "-" + str(number) + ".csv",
                   "is been created.")
             files.append(csvFile)
