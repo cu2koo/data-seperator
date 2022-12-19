@@ -73,7 +73,7 @@ for fileName in fileList:
                 continue
 
             # Fill dictionary
-            if "POWER1" in line[topicIndex]:
+            if "POWER1" in line[topicIndex] and "ON" in line[messageIndex]:
                 try:
                     time = line[timeIndex]
                     power = line[messageIndex]
@@ -118,7 +118,7 @@ for extractedData in extractedDataList:
 
 # Save data
 createPath(resultPath)
-csvFile = open(resultPath + "/dining-room.csv", "w")
+csvFile = open(resultPath + "/dining-room.csv", "w", newline='')
 writer = csv.writer(csvFile)
 
 indexLine = True
@@ -133,7 +133,7 @@ csvFile.close()
 # Create final results
 
 # Result
-csvFile = open(resultPath + "/dining-room-results.csv", "w")
+csvFile = open(resultPath + "/dining-room-results.csv", "w", newline='')
 writer = csv.writer(csvFile)
 
 light = 0
@@ -170,7 +170,8 @@ writer.writerow(results.values())
 csvFile.close()
 
 # Result per day
-csvFile = open(resultPath + "/dining-room-results-per-day.csv", "w")
+csvFile = open(resultPath + "/dining-room-results-per-day.csv",
+               "w", newline='')
 writer = csv.writer(csvFile)
 
 lastDateTime = dt.datetime.now() - dt.timedelta(365)

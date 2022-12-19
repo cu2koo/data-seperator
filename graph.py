@@ -17,8 +17,6 @@ def createPath(path):
 
 createPath(graphPath)
 
-# Bath
-
 
 def parser(date):
     return pd.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
