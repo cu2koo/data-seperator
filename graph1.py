@@ -76,7 +76,7 @@ for dfSub in dfSubs:
 
     date = pd.to_datetime(dfSub["Date"].values[0]).strftime("%d.%m.")
     ax[x, y].set_title(
-        "Temperatur und Taupunkt im Bad (Extremen am " + date + ")", pad=15.0)
+        "Temperatur und Taupunkt im Bad (Extreme am " + date + ")", pad=15.0)
     ax[x, y].set_xlabel("Zeitpunkt", loc="center", labelpad=7.5)
     ax[x, y].xaxis_date()
     ax[x, y].xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
